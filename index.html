@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Locus</title>
+<meta name="bible-name" content="King James Version">
+<style>
+/* Locus: warm tan paper, matte clay-brown accent, brown ink. No blues. */
+:root {
+  color-scheme: light;
+  --bg: #e6d8bf;
+  --card: #f1e7d2;
+  --ink: #3a2c22;
+  --muted: #6b5848;
+  --accent: #8c4a38;
+  --accent-ink: #fbf3e4;
+  --line: #c9b694;
+  --hl: #e3c98f;
+  --err: #a2321f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #2b221b;
+    --card: #382d24;
+    --ink: #efe2c9;
+    --muted: #bba98f;
+    --accent: #d9906f;
+    --accent-ink: #2b1a10;
+    --line: #54443a;
+    --hl: #5d4727;
+    --err: #f2a38c;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+  line-height: 1.55;
+}
+
+header.site, footer.site, main { max-width: 42rem; margin: 0 auto; padding: 0 1rem; }
+header.site { padding-top: 2rem; padding-bottom: 1rem; }
+header.site h1 { margin: 0; font-size: 2.6rem; font-weight: normal; letter-spacing: 0.04em; color: var(--accent); line-height: 1.1; }
+header.site p { margin: 0.1rem 0 0; color: var(--muted); font-style: italic; }
+footer.site { padding-top: 1.5rem; padding-bottom: 2rem; color: var(--muted); font-size: 0.8rem; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.25rem 1.25rem 1.5rem;
+}
+
+.card h2 { margin-top: 0; }
+.status { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
+.prompt { margin: 0 0 0.5rem; font-weight: bold; }
+.muted { color: var(--muted); }
+.error { color: var(--err); min-height: 1.2em; margin: 0.5rem 0 0; }
+.rules { padding-left: 1.2rem; }
+
+.quote {
+  margin: 0 0 1.25rem;
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 4px solid var(--accent);
+  font-size: 1.3rem;
+  font-style: italic;
+}
+
+.guess { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.75rem; }
+.guess label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; color: var(--muted); }
+.guess .actions, .guess .error { grid-column: 1 / -1; }
+
+.guess .error:not(:empty) {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--err);
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+input, select {
+  font: inherit;
+  font-size: 1.05rem;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  width: 100%;
+}
+
+input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-top: 0.25rem; }
+
+button { font: inherit; cursor: pointer; border-radius: 6px; padding: 0.6rem 1.1rem; border: 1px solid transparent; }
+button:disabled { opacity: 0.5; cursor: default; }
+button.primary { background: var(--accent); color: var(--accent-ink); }
+button.secondary { background: transparent; color: var(--ink); border-color: var(--line); }
+button.link { background: none; color: var(--muted); text-decoration: underline; padding-left: 0; }
+
+.result { margin-top: 1.25rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+.result:empty { display: none; }
+.result p { margin: 0.3rem 0; }
+.points { font-size: 2rem; font-weight: bold; color: var(--accent); }
+.points.big { font-size: 3.2rem; }
+.points .of { font-size: 1rem; font-weight: normal; color: var(--muted); }
+.answer { font-weight: bold; font-size: 1.15rem; }
+
+.context { margin-top: 1rem; padding: 0.75rem 1rem; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.context[hidden] { display: none; }
+.verse { margin: 0.4rem 0; }
+.verse sup { color: var(--muted); font-size: 0.7rem; }
+.verse.target { background: var(--hl); border-radius: 4px; padding: 0.15rem 0.35rem; }
+.context a { color: var(--accent); font-size: 0.9rem; }
+
+.review { padding-left: 1.4rem; }
+.review li { margin: 0.25rem 0; }
+.review .pts { color: var(--muted); }
+.review blockquote { margin: 0.2rem 0 0.8rem; color: var(--muted); font-size: 0.9rem; font-style: italic; }
+
+pre { overflow-x: auto; padding: 0.75rem 1rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; font-size: 0.85rem; }
+
+@media (max-width: 30rem) {
+  .guess { grid-template-columns: 1fr 1fr; }
+  .guess label:first-child { grid-column: 1 / -1; }
+}
+
+a { color: var(--accent); }
+fieldset.modes { border: 1px solid var(--line); border-radius: 8px; margin: 1rem 0; padding: 0.4rem 1rem 0.6rem; }
+.modes legend { padding: 0 0.4rem; color: var(--muted); font-size: 0.85rem; }
+.modes label { display: flex; gap: 0.6rem; align-items: flex-start; margin: 0.5rem 0; cursor: pointer; }
+.modes input { width: auto; margin-top: 0.4rem; }
+.setup ol { padding-left: 1.2rem; }
+.field { display: flex; flex-direction: column; gap: 0.25rem; margin: 0.9rem 0; font-size: 0.85rem; color: var(--muted); }
+pre.error { white-space: pre-wrap; font-family: inherit; }
+.guess .error:empty { display: none; }
+select { width: 100%; }
+.result .actions { margin-top: 0.9rem; }
+
+.source { margin: -0.75rem 0 1rem; color: var(--muted); font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<header class="site">
+<h1>Locus</h1>
+<p>Find the place. Learn where it is written.</p>
+</header>
+<main id="app"></main>
+<footer class="site"><p id="notice"></p></footer>
+<script>
+"use strict";(()=>{var te=[["Genesis",50,"Law"],["Exodus",40,"Law"],["Leviticus",27,"Law"],["Numbers",36,"Law"],["Deuteronomy",34,"Law"],["Joshua",24,"History"],["Judges",21,"History"],["Ruth",4,"History"],["1 Samuel",31,"History"],["2 Samuel",24,"History"],["1 Kings",22,"History"],["2 Kings",25,"History"],["1 Chronicles",29,"History"],["2 Chronicles",36,"History"],["Ezra",10,"History"],["Nehemiah",13,"History"],["Esther",10,"History"],["Job",42,"Wisdom"],["Psalms",150,"Wisdom"],["Proverbs",31,"Wisdom"],["Ecclesiastes",12,"Wisdom"],["Song of Solomon",8,"Wisdom"],["Isaiah",66,"Prophets"],["Jeremiah",52,"Prophets"],["Lamentations",5,"Prophets"],["Ezekiel",48,"Prophets"],["Daniel",12,"Prophets"],["Hosea",14,"Prophets"],["Joel",3,"Prophets"],["Amos",9,"Prophets"],["Obadiah",1,"Prophets"],["Jonah",4,"Prophets"],["Micah",7,"Prophets"],["Nahum",3,"Prophets"],["Habakkuk",3,"Prophets"],["Zephaniah",3,"Prophets"],["Haggai",2,"Prophets"],["Zechariah",14,"Prophets"],["Malachi",4,"Prophets"],["Matthew",28,"Gospels & Acts"],["Mark",16,"Gospels & Acts"],["Luke",24,"Gospels & Acts"],["John",21,"Gospels & Acts"],["Acts",28,"Gospels & Acts"],["Romans",16,"Epistles"],["1 Corinthians",16,"Epistles"],["2 Corinthians",13,"Epistles"],["Galatians",6,"Epistles"],["Ephesians",6,"Epistles"],["Philippians",4,"Epistles"],["Colossians",4,"Epistles"],["1 Thessalonians",5,"Epistles"],["2 Thessalonians",3,"Epistles"],["1 Timothy",6,"Epistles"],["2 Timothy",4,"Epistles"],["Titus",3,"Epistles"],["Philemon",1,"Epistles"],["Hebrews",13,"Epistles"],["James",5,"Epistles"],["1 Peter",5,"Epistles"],["2 Peter",3,"Epistles"],["1 John",5,"Epistles"],["2 John",1,"Epistles"],["3 John",1,"Epistles"],["Jude",1,"Epistles"],["Revelation",22,"Revelation"]];function se(t){return t<=4?"Law":t<=16?"Historical narrative":t<=21?"Wisdom & poetry":t<=26?"Major prophets":t<=38?"Minor prophets":t<=42?"Gospels":t===43?"Acts":t<=56?"Pauline epistles":t<=64?"General epistles":"Revelation"}var ne={Moses:["Genesis","Exodus","Leviticus","Numbers","Deuteronomy"],Solomon:["Proverbs","Ecclesiastes","Song of Solomon"],Jeremiah:["Jeremiah","Lamentations"],Luke:["Luke","Acts"],John:["John","1 John","2 John","3 John","Revelation"],Paul:["Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon"],Peter:["1 Peter","2 Peter"]},oe={Samuel:["1 Samuel","2 Samuel"],Kings:["1 Kings","2 Kings"],Chronicles:["1 Chronicles","2 Chronicles"],Corinthians:["1 Corinthians","2 Corinthians"],Thessalonians:["1 Thessalonians","2 Thessalonians"],Timothy:["1 Timothy","2 Timothy"],Peter:["1 Peter","2 Peter"],"John\u2019s letters":["1 John","2 John","3 John"]};function O(t,e){return Object.keys(t).find(s=>t[s].includes(e))}var p=te.map(([t,e,s],n)=>({name:t,chapters:e,section:s,testament:n<39?"OT":"NT",genre:se(n),author:O(ne,t),work:O(oe,t)}));function $(t){return p.findIndex(e=>e.name===t)}function y(t){return`${p[t.book].name} ${t.chapter}:${t.verse}`}var re={psalm:"psalms",ps:"psalms","song of songs":"song of solomon","songs of solomon":"song of solomon",canticles:"song of solomon",revelations:"revelation","revelation of john":"revelation"};function ie(t){let e=t.toLowerCase().replace(/\./g,"").replace(/\s+/g," ").trim();return e=e.replace(/^(first|1st|i) /,"1 ").replace(/^(second|2nd|ii) /,"2 ").replace(/^(third|3rd|iii) /,"3 "),e=e.replace(/^([123])\s*(?=[a-z])/,"$1 "),re[e]??e}function H(t){let e=ie(t);if(!e)return{ok:!1,reason:"empty",matches:[]};let s=p.findIndex(r=>r.name.toLowerCase()===e);if(s>=0)return{ok:!0,index:s};let n=p.map((r,i)=>({b:r,i})).filter(({b:r})=>r.name.toLowerCase().startsWith(e));return n.length===1?{ok:!0,index:n[0].i}:n.length>1?{ok:!1,reason:"ambiguous",matches:n.map(r=>r.b.name)}:{ok:!1,reason:"unknown",matches:[]}}var x=100,ae=1.25,le=80,ce=8,ue=40,he=30,pe=35,me=25,fe=15,de=10,be=5;function ge(t,e){let s=[];return t.work&&t.work===e.work&&s.push({points:pe,tier:"sister",message:`Wrong book, but ${t.name} and ${e.name} are two parts of one work.`}),t.author&&t.author===e.author&&s.push({points:me,tier:"author",message:`Wrong book, but ${t.name} and ${e.name} are both traditionally credited to ${e.author}.`}),t.genre===e.genre&&s.push({points:fe,tier:"genre",message:`Wrong book, but you had the right genre (${e.genre.toLowerCase()}).`}),t.section===e.section&&s.push({points:de,tier:"section",message:`Wrong book, but you had the right part of the Bible (${e.section.toLowerCase()}).`}),t.testament===e.testament&&s.push({points:be,tier:"testament",message:"Wrong book, but you had the right testament."}),s.length===0?{points:0,tier:"none",message:`This one is in the ${e.testament==="OT"?"Old":"New"} Testament.`}:s.reduce((n,r)=>r.points>n.points?r:n)}function I(t,e){let s=p[t.book],n=p[e.book],r=n.testament==="OT"?ae:1;if(t.book!==e.book)return ge(s,n);if(t.chapter===e.chapter){if(t.verse===e.verse)return{points:x,tier:"exact",message:"Exactly right."};let l=Math.abs(t.verse-e.verse),u=le+20*Math.max(0,1-l/(ce*r));return{points:Math.min(x-1,Math.round(u)),tier:"chapter",message:`Right chapter, ${l} verse${l===1?"":"s"} off.`}}let i=Math.abs(t.chapter-e.chapter),a=Math.max(3,Math.ceil(n.chapters/3))*r,c=ue+he*Math.max(0,1-i/a);return{points:Math.round(c),tier:i<=2?"near-chapter":"book",message:`Right book, ${i} chapter${i===1?"":"s"} away.`}}function G(t,e,s=[]){let n=I(t,e);for(let r of s){let i=I(t,r);i.points>n.points&&(n={...i,message:`${i.message} (Accepted parallel passage: ${y(r)}.)`})}return n}function R(t){return String(t??"").replace(/<[^>]*>/g,"").replace(/[{}]/g,"").replace(/¶/g,"").replace(/\s+/g," ").trim()}var _=t=>Array.from({length:t.length},(e,s)=>t[s]??"");function K(t){return t.map(e=>Array.from({length:e.length},(s,n)=>_(e[n]??[])))}function ke(t){var s,n;let e=p.map(()=>[]);for(let r of t){let[,i,a,c,l]=r.field??[],u=Number(i)-1;u>=0&&u<p.length&&(((s=e[u])[n=Number(a)-1]??(s[n]=[]))[Number(c)-1]=R(l))}return K(e)}function ye(t){let e=t;if(e&&!Array.isArray(e)&&e.resultset&&Array.isArray(e.resultset.row))return ke(e.resultset.row);let s=Array.isArray(t)?t:Array.isArray(e?.books)?e.books:null;if(!s)throw new Error("Unrecognized file layout. Expected a list of 66 books.");if(s.length!==p.length)throw new Error(`Expected 66 books, found ${s.length}. Use a standard Protestant Bible without the Apocrypha.`);return s.map((n,r)=>{let i=n?.chapters;if(!Array.isArray(i))throw new Error(`Book ${r+1} has no chapters list.`);return i.map(a=>{if(Array.isArray(a))return a.map(R);let c=a?.verses;if(Array.isArray(c)){let l=[];return c.forEach((u,m)=>{let h=u,d=Number(typeof h=="object"&&h?h.verse:NaN);l[Number.isInteger(d)&&d>=1?d-1:m]=R(typeof h=="string"?h:h?.text)}),_(l)}throw new Error(`Could not read a chapter in book ${r+1}.`)})})}function we(t){var n,r;let e=p.map(()=>[]),s=0;for(let i of t.split(/\r?\n/)){let a=i.match(/^\s*(.+?)\s+(\d+):(\d+)\s+(.+)$/);if(!a)continue;let c=H(a[1]);if(!c.ok)throw new Error(`Unrecognized book name "${a[1]}".`);((n=e[c.index])[r=Number(a[2])-1]??(n[r]=[]))[Number(a[3])-1]=R(a[4]),s+=1}if(s===0)throw new Error('No verse lines could be read. Expected one verse per line, like "Genesis 1:1 In the beginning...".');return K(e)}function A(t){let e=t.replace(/^﻿/,"").trim();if(e.startsWith("[")||e.startsWith("{")){let s;try{s=JSON.parse(e)}catch{throw new Error("This file looks like JSON but could not be read. It may be incomplete or damaged.")}return ye(s)}return we(e)}function J(t,e=3e4){let s=[],n=0;if(p.forEach((r,i)=>{let a=t[i]??[];if(a.length!==r.chapters){s.push(`${r.name}: expected ${r.chapters} chapters, found ${a.length}`);return}a.forEach((c,l)=>{let u=c.filter(Boolean).length;u===0&&s.push(`${r.name} ${l+1}: no verses`),n+=u})}),s.length===0&&n<e&&s.push(`Only ${n} verses found; a full Bible has about 31,000`),s.length){let r=s.slice(0,8).join(`
+`);throw new Error(`This file does not look like a complete Bible:
+${r}${s.length>8?`
+...and ${s.length-8} more`:""}`)}return n}var ve=["Genesis 1:1","Genesis 1:27","Genesis 2:18","Genesis 3:15","Genesis 6:8","Genesis 12:3","Genesis 22:14","Genesis 50:20","Exodus 3:14","Exodus 14:14","Exodus 20:3","Exodus 20:8","Exodus 20:12","Exodus 34:6","Leviticus 19:2","Leviticus 19:18","Numbers 6:24","Numbers 23:19","Numbers 32:23","Deuteronomy 6:5","Deuteronomy 7:9","Deuteronomy 8:3","Deuteronomy 30:19","Deuteronomy 31:6","Joshua 1:8","Joshua 1:9","Joshua 24:15","Judges 21:25","Ruth 1:16","1 Samuel 15:22","1 Samuel 16:7","1 Samuel 17:47","2 Samuel 22:31","1 Kings 8:27","1 Kings 18:21","1 Kings 19:12","2 Kings 6:16","1 Chronicles 16:34","1 Chronicles 29:11","2 Chronicles 7:14","2 Chronicles 16:9","Ezra 7:10","Nehemiah 8:10","Esther 4:14","Job 1:21","Job 19:25","Job 38:4","Job 42:2","Psalms 1:1","Psalms 19:1","Psalms 23:1","Psalms 27:1","Psalms 34:8","Psalms 37:4","Psalms 46:1","Psalms 46:10","Psalms 51:10","Psalms 90:12","Psalms 91:1","Psalms 103:12","Psalms 118:24","Psalms 119:11","Psalms 119:105","Psalms 121:1","Psalms 139:14","Proverbs 1:7","Proverbs 3:5","Proverbs 3:6","Proverbs 9:10","Proverbs 15:1","Proverbs 16:3","Proverbs 16:18","Proverbs 17:17","Proverbs 18:21","Proverbs 22:6","Proverbs 27:17","Proverbs 31:30","Ecclesiastes 3:1","Ecclesiastes 12:13","Song of Solomon 8:7","Isaiah 1:18","Isaiah 6:8","Isaiah 9:6","Isaiah 26:3","Isaiah 40:8","Isaiah 40:31","Isaiah 41:10","Isaiah 43:2","Isaiah 53:5","Isaiah 53:6","Isaiah 55:8","Isaiah 55:11","Isaiah 64:6","Jeremiah 1:5","Jeremiah 17:9","Jeremiah 29:11","Jeremiah 31:3","Jeremiah 33:3","Lamentations 3:22","Lamentations 3:23","Ezekiel 36:26","Daniel 3:17","Daniel 12:3","Hosea 4:6","Hosea 6:6","Joel 2:13","Joel 2:28","Amos 3:3","Amos 5:24","Obadiah 1:15","Jonah 2:9","Micah 5:2","Micah 6:8","Nahum 1:7","Habakkuk 2:4","Habakkuk 2:14","Zephaniah 3:17","Haggai 2:9","Zechariah 4:6","Zechariah 9:9","Malachi 3:6","Malachi 3:10","Matthew 5:8","Matthew 5:16","Matthew 5:44","Matthew 6:21","Matthew 6:33","Matthew 7:7","Matthew 7:12","Matthew 11:28","Matthew 16:18","Matthew 18:20","Matthew 22:37","Matthew 28:19","Matthew 28:20","Mark 1:15","Mark 8:36","Mark 9:23","Mark 10:45","Mark 12:30","Mark 16:15","Luke 1:37","Luke 2:11","Luke 6:31","Luke 9:23","Luke 19:10","Luke 23:34","John 1:1","John 1:12","John 1:14","John 3:3","John 3:16","John 5:24","John 8:12","John 8:32","John 10:10","John 10:11","John 11:25","John 11:35","John 13:34","John 14:6","John 14:27","John 15:5","John 15:13","John 16:33","John 20:31","Acts 1:8","Acts 2:38","Acts 4:12","Acts 16:31","Acts 17:11","Acts 20:35","Romans 1:16","Romans 3:23","Romans 5:8","Romans 6:23","Romans 8:1","Romans 8:28","Romans 10:9","Romans 10:17","Romans 12:1","Romans 12:2","Romans 15:13","1 Corinthians 6:19","1 Corinthians 10:13","1 Corinthians 13:4","1 Corinthians 13:13","1 Corinthians 15:58","2 Corinthians 5:7","2 Corinthians 5:17","2 Corinthians 5:21","2 Corinthians 9:7","2 Corinthians 12:9","Galatians 2:20","Galatians 3:28","Galatians 5:22","Galatians 6:9","Ephesians 2:8","Ephesians 2:9","Ephesians 3:20","Ephesians 4:32","Ephesians 6:11","Philippians 1:6","Philippians 3:14","Philippians 4:6","Philippians 4:7","Philippians 4:8","Philippians 4:13","Colossians 3:2","Colossians 3:23","1 Thessalonians 5:17","1 Thessalonians 5:21","2 Thessalonians 3:10","1 Timothy 1:15","1 Timothy 2:5","1 Timothy 4:12","1 Timothy 6:10","2 Timothy 1:7","2 Timothy 2:15","2 Timothy 3:16","2 Timothy 4:7","Titus 2:11","Titus 3:5","Hebrews 4:12","Hebrews 4:16","Hebrews 11:1","Hebrews 11:6","Hebrews 12:1","Hebrews 12:2","Hebrews 13:5","Hebrews 13:8","James 1:2","James 1:5","James 1:22","James 2:17","James 4:7","James 5:16","1 Peter 2:9","1 Peter 3:15","1 Peter 5:7","1 Peter 5:8","2 Peter 3:9","1 John 1:9","1 John 4:8","1 John 4:19","1 John 5:13","3 John 1:4","Jude 1:24","Revelation 1:8","Revelation 3:20","Revelation 21:4","Revelation 22:13"];function xe(t){let e=t.match(/^(.+) (\d+):(\d+)$/),s=e?$(e[1]):-1;if(!e||s<0)throw new Error(`Bad reference in the well-known list: ${t}`);return{book:s,chapter:Number(e[2]),verse:Number(e[3])}}var W=ve.map(xe);function L(t){return t.toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}var Ee=new Set(["I","God","Lord","LORD","He","His","Him","Thou","Thee","Thy","Thine","Jesus","Christ","Spirit","Holy","Father","Son","Yahweh","Almighty","Word","Israel"]);function j(t){if(t.length<50||t.length>260)return!1;let e=t.split(/\s+/);return e.length<9?!1:e.slice(1).filter(n=>/^[A-Z]/.test(n)&&!Ee.has(n.replace(/[^A-Za-z]/g,""))).length/e.length<=.25}function P(t){let e=0,s=[],n=new Map;return t.books.forEach((r,i)=>r.forEach((a,c)=>a.forEach((l,u)=>{if(!l)return;e+=1;let m={book:i,chapter:c+1,verse:u+1},h=L(l),d=n.get(h);d?d.push(m):n.set(h,[m]),j(l)&&s.push(m)}))),{translation:t.translation,books:t.books,verseCount:e,candidates:s,byText:n}}function z(t){let e=t;return!e||typeof e.translation!="string"||!Array.isArray(e.books)||e.books.length!==p.length?!1:p.every((s,n)=>{let r=e.books[n];return Array.isArray(r)&&r.length===s.chapters&&r.every(i=>Array.isArray(i)&&i.every(a=>typeof a=="string"))})}function Q(t,e){return t.books[e.book]?.[e.chapter-1]?.[e.verse-1]??""}function Te(t,e){return Q(t,e)!==""}var Se=(t,e)=>t.book===e.book&&t.chapter===e.chapter&&t.verse===e.verse;function D(t,e){let s=[...t];for(let n=s.length-1;n>0;n--){let r=Math.floor(e()*(n+1));[s[n],s[r]]=[s[r],s[n]]}return s}var Re=.6;function U(t,e,s=Math.random){let n=[],r=new Set,i=new Set,a=(l,u,m)=>{for(let h of D(l,s)){if(n.length>=m)return;let d=Q(t,h);if(!d)continue;let f=L(d);if(r.has(f)||u&&i.has(h.book))continue;r.add(f),i.add(h.book);let b=(t.byText.get(f)??[]).filter(k=>!Se(k,h));n.push({ref:h,text:d,alternates:b})}},c=W.filter(l=>Te(t,l));return a(c,!0,Math.round(e*Re)),a(t.candidates,!0,e),a(c,!1,e),a(t.candidates,!1,e),D(n,s)}function q(t,e){let s=t.books[e.book][e.chapter-1],n=Math.max(1,e.verse-5),r=Math.min(s.length,e.verse+5),i=[];for(let a=n;a<=r;a++)s[a-1]&&i.push({n:a,text:s[a-1]});return i}var V=10,Pe="https://raw.githubusercontent.com/thiagobodruk/bible/master/json/en_kjv.json",Y=document.getElementById("app"),Ce=document.getElementById("notice"),Ae="bible-trivia",B="kv",F="bible";function Z(t,e){return new Promise(s=>{try{let n=indexedDB.open(Ae,1);n.onupgradeneeded=()=>n.result.createObjectStore(B),n.onerror=()=>s(null),n.onsuccess=()=>{try{let r=n.result.transaction(B,t),i=e(r.objectStore(B));r.oncomplete=()=>s(i.result??null),r.onerror=r.onabort=()=>s(null)}catch{s(null)}}}catch{s(null)}})}async function Je(){let t=await Z("readonly",e=>e.get(F));return z(t)?t:null}async function Le(t){return await Z("readwrite",e=>e.put(t,F))!==null}function o(t,e={},...s){let n=document.createElement(t);for(let[r,i]of Object.entries(e))n.setAttribute(r,i);return n.append(...s),n}function S(...t){Y.replaceChildren(...t)}var g=null,X=!0,w=[],E=0;function M(){return w.reduce((t,e)=>t+(e.result?.points??0),0)}async function Be(){if(!location.protocol.startsWith("http"))return null;let t;try{let n=await fetch("bible.json");if(!n.ok)return null;t=await n.text()}catch{return null}let e=A(t);return J(e),{translation:document.querySelector('meta[name="bible-name"]')?.getAttribute("content")?.trim()||"Bible",books:e}}async function Me(){S(o("section",{class:"card"},o("p",{class:"muted",role:"status"},"Loading\u2026")));try{let e=await Be();if(e){g=P(e),T();return}}catch(e){v(`The Bible file that comes with this site could not be used. ${e instanceof Error?e.message:""}`.trim());return}let t=await Je();t?(g=P(t),T()):v()}function v(t=""){let e=o("input",{id:"bible-file",type:"file",accept:".json,.txt,application/json,text/plain"}),s=o("input",{id:"translation",type:"text",value:"King James Version"}),n=o("pre",{class:"error",role:"alert"},t),r=o("p",{class:"muted",role:"status"}),i=o("button",{type:"button",class:"link"},"Back to the game");i.addEventListener("click",()=>T()),e.addEventListener("change",async()=>{let c=e.files?.[0];if(c){n.textContent="",r.textContent="Reading the file\u2026";try{let l=A(await c.text()),u=J(l),m={translation:s.value.trim()||"Bible",books:l};g=P(m),X=await Le(m),r.textContent="",T(`Loaded ${u.toLocaleString()} verses.`)}catch(l){r.textContent="",n.textContent=l instanceof Error?l.message:"That file could not be read.",e.value=""}}});let a=o("a",{href:Pe,target:"_blank",rel:"noopener"},"Open the King James Version file");S(o("section",{class:"card setup"},o("h2",{},"Add a Bible first"),o("p",{},"This game uses a free, public-domain Bible so it can work without internet. You only do this once."),o("ol",{},o("li",{},a," in a new tab. If your browser shows a page full of text instead of downloading, press Ctrl+S (Cmd+S on a Mac) and save it anywhere."),o("li",{},"Come back here, and choose the file you saved:")),o("label",{class:"field"},"Bible file",e),o("label",{class:"field"},"Name of this translation",s),r,n,g?i:o("span",{})))}function T(t=""){if(!g)return v();let e=g,s=o("button",{class:"primary",id:"start"},"Begin");s.addEventListener("click",Ne);let n=o("button",{type:"button",class:"link"},"Use a different Bible file");n.addEventListener("click",()=>v()),S(o("section",{class:"card"},...t?[o("p",{class:"muted",role:"status"},t)]:[],o("h2",{},"Where is it found?"),o("p",{},`You will see ${V} verses. For each one, choose the book and enter the chapter and verse. Most are well known, like 2 Timothy 3:16, and a few come from anywhere in the Bible, so you can often work them out from the clues.`),o("ul",{class:"rules"},o("li",{},"A perfect reference is 100 points, so a perfect game is 1,000."),o("li",{},"Close counts: right book and chapter with a nearby verse still scores well."),o("li",{},"Wrong book? You can still earn points for the other half of the same work (1 Kings for 2 Kings), the same author, the same genre, or the same part of the Bible."),o("li",{},"There is no timer. After each answer you can read the verse in context.")),s,o("p",{},n))),Ce.textContent=`Scripture text: ${e.translation} (${e.verseCount.toLocaleString()} verses)${X?"":". This browser would not save it, so you will need to choose the file again next time."}`}function Ne(){if(!g)return v();let t=g,e=U(t,V);if(e.length===0){v("No usable verses were found in that file.");return}w=e.map(s=>({question:s,context:q(t,s.ref)})),E=0,ee()}function Oe(){return o("div",{class:"status"},o("span",{},`Question ${E+1} of ${w.length}`),o("span",{},`Score ${M()}`))}function ee(){let t=w[E],e=o("blockquote",{class:"quote"});e.textContent=t.question.text;let s=f=>p.flatMap((b,k)=>b.testament===f?[o("option",{value:String(k)},b.name)]:[]),n=o("select",{id:"book"},o("option",{value:""},"Choose a book\u2026"),o("optgroup",{label:"Old Testament"},...s("OT")),o("optgroup",{label:"New Testament"},...s("NT"))),r=o("input",{id:"chapter",type:"number",min:"1",inputmode:"numeric",placeholder:"No."}),i=o("input",{id:"verse",type:"number",min:"1",inputmode:"numeric",placeholder:"No."}),a=o("p",{class:"error",role:"alert"}),c=o("button",{class:"primary",type:"submit",id:"submit"},"Submit answer"),l=o("button",{class:"link",type:"button"},"Show me the answer (0 points)"),u=o("form",{class:"guess",novalidate:""},o("label",{},"Book",n),o("label",{},"Chapter",r),o("label",{},"Verse",i),a,o("div",{class:"actions"},c,l)),m=o("div",{class:"result"});S(o("section",{class:"card"},Oe(),o("p",{class:"prompt"},"Where is this found?"),e,u,m));let h=()=>{u.querySelectorAll("input, select, button").forEach(f=>f.disabled=!0),$e(m,t),m.scrollIntoView({block:"nearest"})},d=()=>{if(t.result)return;if(a.textContent="",n.value===""){a.textContent="Choose a book first.",n.focus();return}let f=Number(n.value),b=Number(r.value),k=Number(i.value),C=p[f].chapters;if(r.value.trim()===""||!Number.isInteger(b)||b<1||b>C){a.textContent=`Enter a chapter number from 1 to ${C} (${p[f].name} has ${C}).`,r.focus();return}if(i.value.trim()===""||!Number.isInteger(k)||k<1){a.textContent="Enter a verse number.",i.focus();return}let N={book:f,chapter:b,verse:k};t.guess=N,t.result=G(N,t.question.ref,t.question.alternates),h()};c.addEventListener("click",f=>{f.preventDefault(),d()}),u.addEventListener("submit",f=>{f.preventDefault(),d()}),l.addEventListener("click",()=>{t.result||(t.result={points:0,tier:"none",message:"No guess this time."},h())})}function $e(t,e){let s=e.result,n=e.question.ref,r=E===w.length-1,i=o("div",{class:"context",hidden:""});i.append(o("p",{class:"muted"},`${p[n.book].name} ${n.chapter}`),...e.context.map(m=>{let h=o("p",{class:m.n===n.verse?"verse target":"verse"},o("sup",{},String(m.n)));return h.append(" ",m.text),h}));let a=o("button",{type:"button",class:"secondary"},"Read in context");a.addEventListener("click",()=>{i.hidden=!i.hidden,a.textContent=i.hidden?"Read in context":"Hide context"});let c=o("button",{type:"button",class:"primary"},r?"See final score":"Next question");c.addEventListener("click",()=>{r?Ie():(E+=1,ee())});let l=e.guess?`Your answer: ${y(e.guess)}`:"Your answer: none";t.replaceChildren(o("p",{class:"points"},`+${s.points}`,o("span",{class:"of"},` / ${x}`)),o("p",{},s.message),o("p",{class:"answer"},`Answer: ${y(n)}`),o("p",{class:"muted"},l),o("div",{class:"actions"},a,c),i),c.focus();let u=Y.querySelector(".status span:last-child");u&&(u.textContent=`Score ${M()}`)}function He(t,e){let s=t/e;return s>=.9?"Outstanding. You know where things are.":s>=.7?"Strong. You know the Bible well.":s>=.5?"A solid foundation to build on.":s>=.3?"A good start. Keep reading.":"Plenty to discover. Read the verses below in context and try again."}function Ie(){let t=M(),e=w.length*x,s=o("button",{class:"primary"},"Play again");s.addEventListener("click",()=>T());let n=o("ol",{class:"review"},...w.map(r=>{let i=o("blockquote",{});return i.textContent=r.question.text,o("li",{},o("strong",{},y(r.question.ref)),` \u2014 ${r.guess?y(r.guess):"no guess"} `,o("span",{class:"pts"},`${r.result?.points??0} pts`),i)}));S(o("section",{class:"card"},o("h2",{},"Final score"),o("p",{class:"points big"},String(t),o("span",{class:"of"},` / ${e}`)),o("p",{},He(t,e)),n,s))}Me();})();
+</script>
+</body>
+</html>
